@@ -1,0 +1,15 @@
+{
+  "name": "qwik-wasm",
+  "collaborators": [
+    "Manu Mtz-Almeida <manu@builder.io>"
+  ],
+  "version": "0.0.1",
+  "files": [
+    "qwik_wasm_bg.wasm",
+    "qwik_wasm.js",
+    "qwik_wasm.d.ts"
+  ],
+  "module": "qwik_wasm.js",
+  "types": "qwik_wasm.d.ts",
+  "sideEffects": false
+}
