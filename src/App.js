@@ -143,7 +143,7 @@ export default function App() {
     <div className="App">
       <header>
         <a href="https://github.com/builderio/qwik" className="logo">
-          <img src="https://cdn.builder.io/api/v1/image/assets%2FYJIGb4i01jvw0SRdL5Bt%2F667ab6c2283d4c4d878fb9083aacc10f"/>
+          <img alt="Qwik logo" src="https://cdn.builder.io/api/v1/image/assets%2FYJIGb4i01jvw0SRdL5Bt%2F667ab6c2283d4c4d878fb9083aacc10f"/>
         </a>
         Optimizer Playground
         <select
