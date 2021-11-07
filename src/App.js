@@ -77,9 +77,8 @@ export default function App() {
             }
           ]
         };
-        console.log(opts);
-        const qwikCompiler = await window.qwikCompiler;
-        const result = qwikCompiler(opts);
+        const qk = await window.qwikCompiler;
+        const result = qk(opts);
         setModules(result.modules);
 
         const inputOptions = {
@@ -234,7 +233,7 @@ export default function App() {
           </select>
           {codes.map(mod => {
             return (
-              <div className="chunk">
+              <div className="chunk" key={mod.path}>
                 <h2>{mod.path}</h2>
                 <SyntaxHighlighter language="javascript" style={docco}>
                   {mod.code}
