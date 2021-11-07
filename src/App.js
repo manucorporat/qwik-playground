@@ -78,7 +78,8 @@ export default function App() {
           ]
         };
         console.log(opts);
-        const result = window.qwikCompiler(opts);
+        const qwikCompiler = await window.qwikCompiler;
+        const result = qwikCompiler(opts);
         setModules(result.modules);
 
         const inputOptions = {
