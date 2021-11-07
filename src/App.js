@@ -5,6 +5,10 @@ import useDebounce from "./debounce";
 import ResizePanel from "react-resize-panel";
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { FormControl, FormControlLabel, InputLabel, MenuItem, Paper, Select, Stack, Switch, Tab } from "@mui/material";
+
+import { TabContext, TabList } from "@mui/lab";
+
 
 
 const prefix = "#";
@@ -36,9 +40,10 @@ const getInitialState = () => {
   }
   return {
     code: INIT,
-    transpile: false,
+    transpile: true,
     minify: 'none',
-    entryStrategy: 'smart'
+    entryStrategy: 'smart',
+    view: 'bundles'
   };
 };
 
@@ -55,9 +60,10 @@ export default function App() {
   const [code, setCode] = useState(state.code);
   const [minify, setMinify] = useState(state.minify);
   const [entryStrategy, setEntryStrategy] = useState(state.entryStrategy);
+  const [transpile, setTranspile] = useState(state.transpile);
   const [modules, setModules] = useState([]);
   const [bundles, setBundles] = useState([]);
-  const [view, setView] = useState("modules");
+  const [view, setView] = useState(state.view);
 
   const debouncedCode = useDebounce(code, 200);
 
@@ -66,7 +72,7 @@ export default function App() {
       if (window.qwikCompiler) {
         const opts = {
           rootDir: '/internal/project',
-          transpile: true,
+          transpile,
           minify,
           entryStrategy,
           sourceMaps: false,
@@ -81,42 +87,45 @@ export default function App() {
         const result = qk(opts);
         setModules(result.modules);
 
-        const inputOptions = {
-          plugins: [
-            {
-              resolveId(importee, importer) {
-                if (!importer) return importee;
-                if (importee[0] !== '.') return false;
+        if (transpile) {
 
-                return importee + '.js';
-              },
-              load: function (id) {
-                const found = result.modules.find(p => id.includes(p.path));
-                if (found) {
-                  return found.code;
+          const inputOptions = {
+            plugins: [
+              {
+                resolveId(importee, importer) {
+                  if (!importer) return importee;
+                  if (importee[0] !== '.') return false;
+
+                  return importee + '.js';
+                },
+                load: function (id) {
+                  const found = result.modules.find(p => id.includes(p.path));
+                  if (found) {
+                    return found.code;
+                  }
+                  return null;
                 }
-                return null;
               }
+            ],
+            onwarn(warning) {
+              console.warn(warning);
             }
-          ],
-          onwarn(warning) {
-            console.warn(warning);
-          }
-        };
-        inputOptions.input = 'input.js';
+          };
+          inputOptions.input = 'input.js';
 
-        try {
-          const generated = await (await window.rollup.rollup(inputOptions)).generate({
-            format: 'es'
-          });
-          console.log(generated.output);
-          setBundles(generated.output.map(o => ({
-            path: o.fileName,
-            code: o.code,
-            isEntry: o.isDynamicEntry
-          })));
-        } catch (error) {
-          console.error(error);
+          try {
+            const generated = await (await window.rollup.rollup(inputOptions)).generate({
+              format: 'es'
+            });
+            console.log(generated.output);
+            setBundles(generated.output.map(o => ({
+              path: o.fileName,
+              code: o.code,
+              isEntry: o.isDynamicEntry
+            })));
+          } catch (error) {
+            console.error(error);
+          }
         }
       }
     }
@@ -125,6 +134,7 @@ export default function App() {
     debouncedCode,
     minify,
     entryStrategy,
+    transpile
   ]);
 
   useEffect(() => {
@@ -132,15 +142,19 @@ export default function App() {
       code,
       minify,
       entryStrategy,
+      transpile,
+      view
     });
     window.location.hash = prefix + btoa(state);
   }, [
     code,
     minify,
     entryStrategy,
+    transpile,
+    view
   ]);
 
-  const codes = view === 'modules' ? modules : bundles;
+  const codes = view === 'bundles' && transpile ? bundles : modules;
   return (
     <div className="App">
       <header>
@@ -148,31 +162,7 @@ export default function App() {
           <img alt="Qwik logo" src="https://cdn.builder.io/api/v1/image/assets%2FYJIGb4i01jvw0SRdL5Bt%2F667ab6c2283d4c4d878fb9083aacc10f"/>
         </a>
         Optimizer Playground
-        <select
-          value={minify}
-          onChange={(ev) => {
-            const value = ev.target.value;
-            setMinify(value);
-          }}
-        >
-          <option value="minify">Minify: minify</option>
-          <option value="simplify">Minify: simplify</option>
-          <option value="none">Minify: none</option>
 
-        </select>
-
-        <select
-          value={entryStrategy}
-          onChange={(ev) => {
-            const value = ev.target.value;
-            setEntryStrategy(value);
-          }}
-        >
-          <option value="smart">Strategy: smart</option>
-          <option value="single">Strategy: single</option>
-          <option value="hook">Strategy: hook</option>
-          <option value="component">Strategy: component</option>
-        </select>
         <nav className="top-menu">
           <a
             className="link"
@@ -223,17 +213,51 @@ export default function App() {
           />
         </ResizePanel>
         <div className="output-code">
-          <select
-            value={view}
-            onChange={(ev) => {
-              const value = ev.target.value;
-              setView(value);
-            }}
-          >
-            <option value="modules">Modules</option>
-            <option value="chunks">Bundles</option>
-          </select>
-          <h1>Generated files</h1>
+          <h2>Options</h2>
+          <Stack direction="row" spacing={2} marginTop>
+            <FormControl fullWidth>
+              <InputLabel id="minification-label">Minification</InputLabel>
+              <Select
+                labelId="minification-label"
+                id="minification-select"
+                value={minify}
+                label="Minification"
+                onChange={(_, v) => setMinify(v.props.value)}
+              >
+                <MenuItem value="minify">minify</MenuItem>
+                <MenuItem value="simplify">simplify</MenuItem>
+                <MenuItem value="none">none</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl fullWidth>
+              <InputLabel id="strategy-label">Entry strategy</InputLabel>
+              <Select
+                labelId="strategy-label"
+                id="strategy-select"
+                value={entryStrategy}
+                label="Entry stategy"
+                onChange={(_, v) => setEntryStrategy(v.props.value)}
+              >
+                <MenuItem value="single">single</MenuItem>
+                <MenuItem value="hook">hook</MenuItem>
+                <MenuItem value="component">component</MenuItem>
+                <MenuItem value="smart">smart</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControlLabel control={<Switch checked={transpile} onChange={(ev, v) => setTranspile(v)} />} label="Transpile" />
+
+          </Stack>
+
+          <h2>Output</h2>
+
+          {transpile && (
+            <TabContext value={view}>
+              <TabList aria-label="lab API tabs example" onChange={(_, value) => setView(value)}>
+                <Tab label="Modules" value="modules" />
+                <Tab label="Bundles" value="bundles" />
+              </TabList>
+            </TabContext>
+          )}
           <ul>
             {codes.map(mod => (
               <li className={mod.isEntry ? "is-entry" : undefined} key={mod.path}>
@@ -251,12 +275,12 @@ export default function App() {
 
           {codes.map(mod => {
             return (
-              <div id={mod.path} className="chunk" key={mod.path}>
-                <h2>{mod.path}</h2>
+              <Paper id={mod.path} className="chunk" key={mod.path} elevation={2}>
+                <h3>{mod.path}</h3>
                 <SyntaxHighlighter language="javascript" style={docco}>
                   {mod.code}
                 </SyntaxHighlighter>
-              </div>
+              </Paper>
             )
           })}
         </div>
