@@ -109,9 +109,11 @@ export default function App() {
           const generated = await (await window.rollup.rollup(inputOptions)).generate({
             format: 'es'
           });
+          console.log(generated.output);
           setBundles(generated.output.map(o => ({
             path: o.fileName,
-            code: o.code
+            code: o.code,
+            isEntry: o.isDynamicEntry
           })));
         } catch (error) {
           console.error(error);
@@ -231,9 +233,25 @@ export default function App() {
             <option value="modules">Modules</option>
             <option value="chunks">Bundles</option>
           </select>
+          <h1>Generated files</h1>
+          <ul>
+            {codes.map(mod => (
+              <li className={mod.isEntry ? "is-entry" : undefined} key={mod.path}>
+                <button className="href" onClick={() => {
+                  const element = document.getElementById(mod.path);
+                  if (element && element.scrollIntoView) {
+                    element.scrollIntoView();
+                  }
+                }}>
+                  {mod.path}
+                </button>
+                {mod.isEntry && "  (entry point)" }</li>
+            ))}
+          </ul>
+
           {codes.map(mod => {
             return (
-              <div className="chunk" key={mod.path}>
+              <div id={mod.path} className="chunk" key={mod.path}>
                 <h2>{mod.path}</h2>
                 <SyntaxHighlighter language="javascript" style={docco}>
                   {mod.code}

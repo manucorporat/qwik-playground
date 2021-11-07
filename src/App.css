@@ -47,15 +47,21 @@ select {
   text-align: right;
 }
 
-a {
+a,
+.href {
   color: #5049d6;
-  padding: 5px 15px;
   text-decoration: none;
-  border-radius: 20px;
 }
 
-a:hover {
-  background: #3907a5;
+.href {
+  background: transparent;
+  border: none;
+  border-radius: none;
+  font-size: inherit;
+  font-weight: inherit;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
 }
 
 .link {
@@ -73,8 +79,10 @@ a:hover {
   padding-left: 10px;
 }
 
+
+
 .chunk {
-  padding: 20px;
+  padding: 15px 15px;
   background: #f8f8fe;
   border-radius: 10px;
   box-shadow: 0 5px 10px #00000014;
@@ -87,5 +95,9 @@ a:hover {
 }
 
 .chunk > pre {
-  font-size: 14px;
+  font-size: 12px;
+}
+
+.is-entry {
+  font-weight: 700;
 }
