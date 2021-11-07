@@ -5,7 +5,15 @@ import useDebounce from "./debounce";
 import ResizePanel from "react-resize-panel";
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
-import { FormControl, FormControlLabel, InputLabel, MenuItem, Paper, Select, Stack, Switch, Tab } from "@mui/material";
+import FormControl from "@mui/material/FormControl";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Paper from "@mui/material/Paper";
+import Select from "@mui/material/Select";
+import Stack from "@mui/material/Stack";
+import Switch from "@mui/material/Switch";
+import Tab from "@mui/material/Switch";
 
 import { TabContext, TabList } from "@mui/lab";
 
