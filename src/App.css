@@ -23,6 +23,12 @@ header {
   padding: 6px 0;
 }
 
+.diagnostics {
+  margin-top: 20px;
+  color: white;
+  background: #c53d3d;
+}
+
 .logo img {
   height: 100%;
   width: auto;
