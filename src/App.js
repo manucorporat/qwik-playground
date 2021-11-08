@@ -343,7 +343,7 @@ export default function App() {
                     }
                   }}>
                     {mod.path}
-                  </button>
+                  </button> [{formatSize(mod.code.length)}]
                   {mod.isEntry && "  (entry point)" }</li>
               ))}
             </ul>
@@ -365,3 +365,9 @@ export default function App() {
   );
 }
 
+const formatSize = (bytes) => {
+  if (bytes < 1000) {
+    return `${bytes} B`;
+  }
+  return `${(bytes / 1000).toFixed(1)} KB`;
+};
